@@ -9,6 +9,9 @@ use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
+use app\models\CalcForm;
+
+
 
 class SiteController extends Controller
 {
@@ -124,5 +127,32 @@ class SiteController extends Controller
     public function actionAbout()
     {
         return $this->render('about');
+    }
+
+    public function actionCalc()
+    {
+        $model = new CalcForm();
+        $request = \Yii::$app->request;
+        $data = '';
+        $queue = '';
+
+        if ($model->load(\Yii::$app->request->post()) && $model->validate()) {
+            $data = \Yii::$app->request->post();
+            foreach ($data['CalcForm'] as $key => $value) {
+                $queue .= $key . ' => ' . $value . "\n";
+            }
+            file_put_contents(Yii::getAlias('@runtime/queue.job'), $queue);
+            if (\Yii::$app->request->isPjax) {
+                $model = new CalcForm();
+            } else {
+                return $this->refresh();
+            }
+        }
+
+        return $this->render('Calc', compact('model', 'data', 'queue'));
+    }
+    public function actionOop()
+    {
+        return $this->render('oop');
     }
 }
