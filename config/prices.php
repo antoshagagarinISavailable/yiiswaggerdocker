@@ -7,7 +7,7 @@ return [
     'tonnage' => [
         25 => 25, 50 => 50, 75 => 75, 100 => 100
     ],
-    'months' => [
+    'month' => [
         'january' => 'january',
         'february' => 'february',
         'august' => 'august',
