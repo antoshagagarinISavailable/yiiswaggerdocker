@@ -10,8 +10,8 @@ use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
 use app\models\CalcForm;
-
-
+use app\models\Country;
+use yii\db\Query;
 
 class SiteController extends Controller
 {
@@ -135,6 +135,7 @@ class SiteController extends Controller
         $request = \Yii::$app->request;
         $data = '';
         $queue = '';
+        $prices = $model->getPrices();
 
         if ($model->load(\Yii::$app->request->post()) && $model->validate()) {
             $data = \Yii::$app->request->post();
@@ -149,10 +150,15 @@ class SiteController extends Controller
             }
         }
 
-        return $this->render('Calc', compact('model', 'data', 'queue'));
+        return $this->render('Calc', compact('model', 'data', 'queue', 'prices',));
     }
     public function actionOop()
     {
         return $this->render('oop');
+    }
+    public function actionCountry()
+    {
+        $countries = Country::find()->all();
+        return $this->render('country', compact('countries'));
     }
 }

@@ -1,5 +1,4 @@
 <?php
-$prices = require_once __DIR__ . '/../../config/prices.php';
 
 use yii\widgets\ActiveForm;
 use yii\helpers\Html;
@@ -13,7 +12,7 @@ use yii\widgets\Pjax;
             'options' => ['data' => ['pjax' => true]],
         ]) ?>
         <?= $form->field($model, 'raw')->dropDownList($prices['raw']) ?>
-        <?= $form->field($model, 'month')->dropDownList($prices['months']) ?>
+        <?= $form->field($model, 'month')->dropDownList($prices['month']) ?>
         <?= $form->field($model, 'tonnage')->dropDownList($prices['tonnage']) ?>
         <?= Html::submitButton('Submit', ['class' => 'btn btn-dark']) ?>
         <?php ActiveForm::end() ?>
@@ -77,7 +76,7 @@ use yii\widgets\Pjax;
                     <tr>
                         <th scope="col">
                         </th>
-                        <?php foreach ($prices['months'] as $month) : ?>
+                        <?php foreach ($prices['month'] as $month) : ?>
                             <th scope="col"><?= $month ?></th>
                         <?php endforeach; ?>
                     </tr>

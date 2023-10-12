@@ -4,7 +4,7 @@ namespace app\models;
 
 use yii\base\Model;
 
-class CalcForm extends Model
+class CalculatePrice extends Model
 {
     public $raw;
     public $month;
