@@ -2,8 +2,8 @@
 
 namespace app\controllers;
 
-use app\models\GetData;
 use app\models\CalculatePrice;
+use app\models\GetData;
 use yii\rest\Controller;
 
 class ApiController extends Controller
@@ -17,13 +17,10 @@ class ApiController extends Controller
             if (
                 in_array($_GET['type'], $expected_values)
             ) {
-                $prices = $model->getPrices();
-                $res = $prices[$_GET['type']];
-                return $res;
+                return $model->getPrices()[$_GET['type']];;
             }
         }
 
-        // throw new \yii\web\BadRequestHttpException("Bad Request");
         throw new \yii\web\HttpException(418, "ПЕЙ ЧАЙ");
     }
 
@@ -34,23 +31,14 @@ class ApiController extends Controller
         $request = \Yii::$app->request;
         if ($request->isPost && $request->getRawBody()) {
             $data = json_decode($request->getRawBody(), true);
-            // dd($data);
             if (
                 (isset($data['raw']) &&
                     isset($data['month']) &&
-                    isset($data['tonnage'])) &&
-                isset(
-                    $model->getPrices()[$data['raw']][$data['month']][$data['tonnage']]
-                )
+                    isset($data['tonnage']))
             ) {
-                $res = [];
-                $res['price'] = $model->getPrices()[$data['raw']][$data['month']][$data['tonnage']];
-                $res['price_list'][$data['raw']] = $model->getPrices()[$data['raw']];
-                // $model->getPrices()[$data['raw']]
-                return $res;
+                return $model->calculatePriceRes();
             }
         }
         throw new \yii\web\HttpException(418, "ПЕЙ ЧАЙ");
-        // throw new \yii\web\BadRequestHttpException("Bad Request");
     }
 }

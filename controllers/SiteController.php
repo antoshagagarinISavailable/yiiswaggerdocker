@@ -133,50 +133,33 @@ class SiteController extends Controller
 
     public function actionCalc()
     {
+        $this->view->title = 'calc';
         $model = new Prices();
         $request = \Yii::$app->request;
         $data = '';
         $queue = '';
-        $months = Months::getListForSelect();
-        $raw_types = RawTypes::getListForSelect();
-        $tonnages = Tonnages::getListForSelect();
 
         if ($model->load(\Yii::$app->request->post()) && $model->validate()) {
+
             $data = \Yii::$app->request->post();
+            $calc_res = $model->getCalcRes();
+
             foreach ($data['Prices'] as $key => $value) {
                 $queue .= $key . ' => ' . $value . "\n";
             }
+
             file_put_contents(Yii::getAlias('@runtime/queue.job'), $queue);
             if (\Yii::$app->request->isPjax) {
-                $cacl_query = new Query();
-                $res = $cacl_query->select(['raw_types.name as raw', 'months.name as month', 'price', 'tonnages.value as tonnage'])
-                    ->from('months')
-                    ->innerJoin('prices', 'months.id = prices.month_id')
-                    ->innerJoin('tonnages', 'tonnages.id = prices.tonnage_id')
-                    ->innerJoin('raw_types', 'raw_types.id = prices.raw_type_id')
-                    ->where(['raw_type_id' => $model->raw_type_id])
-                    ->andWhere(['tonnage_id' => $model->tonnage_id])
-                    ->andWhere(['month_id' => $model->month_id])
-                    ->orderBy(['tonnages.value' => SORT_ASC, 'months.id' => SORT_ASC])
-                    ->all();
-                $table_query = new Query();
-                $dataForTable = $table_query->select(['price', 'months.name', 'tonnages.value'])
-                    ->from('months')
-                    ->innerJoin('prices', 'months.id = prices.month_id')
-                    ->innerJoin('tonnages', 'tonnages.id = prices.tonnage_id')
-                    ->innerJoin('raw_types', 'raw_types.id = prices.raw_type_id')
-                    ->where(['raw_type_id' => $model->raw_type_id])
-                    ->orderBy(['tonnages.value' => SORT_ASC, 'months.id' => SORT_ASC])
-                    ->all();
 
+                $dataForTable = $model->dataForTable();
 
-                return $this->render('Calc', compact('model', 'data', 'queue', 'months', 'raw_types', 'tonnages', 'res', 'dataForTable'));
+                return $this->render('Calc', compact('model', 'calc_res', 'dataForTable'));
             } else {
                 return $this->refresh();
             }
         }
 
-        return $this->render('Calc', compact('model', 'data', 'queue', 'months', 'raw_types', 'tonnages'));
+        return $this->render('Calc', compact('model'));
     }
     public function actionOop()
     {

@@ -6,10 +6,6 @@ use yii\db\ActiveRecord;
 
 class RawTypes extends ActiveRecord
 {
-    public static function tableName()
-    {
-        return 'raw_types';
-    }
 
     public function rules()
     {
