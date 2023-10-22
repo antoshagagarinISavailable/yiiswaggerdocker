@@ -2,6 +2,7 @@
 
 namespace app\commands;
 
+use app\models\CalculatePrice;
 use yii\console\Controller;
 use yii\console\ExitCode;
 
@@ -10,12 +11,6 @@ class CalcController extends Controller
     public $month;
     public $type;
     public $tonnage;
-    public static $prices;
-
-    public static function initPrices()
-    {
-        self::$prices = require_once __DIR__ . '/../config/prices.php';
-    }
 
     public function options($actionID)
     {
@@ -24,7 +19,10 @@ class CalcController extends Controller
 
     public function actionIndex()
     {
-        self::initPrices();
+        $model = new CalculatePrice();
+        $types = $model->arrayHelper($model->getAllRaws());
+        $months = $model->arrayHelper($model->getAllMonths());
+        $tonnages = $model->arrayHelper($model->getAllTonnages());
 
         if (!$this->month || !$this->type || !$this->tonnage) {
             echo "error:\n";
@@ -35,21 +33,21 @@ class CalcController extends Controller
         }
 
         if (
-            !isset(self::$prices[$this->type])
+            !isset($types[$this->type])
         ) {
             echo "error:\n";
             echo "price for --type=$this->type does not exist.\n";
             echo "check your input.\n";
             return;
         } else if (
-            !isset(self::$prices[$this->type][$this->month])
+            !isset($months[$this->month])
         ) {
             echo "error:\n";
             echo "price for --month=$this->month does not exist.\n";
             echo "check your input.\n";
             return;
         } else if (
-            !isset(self::$prices[$this->type][$this->month][$this->tonnage])
+            !isset($tonnages[$this->tonnage])
         ) {
             echo "error:\n";
             echo "price for --tonnage=$this->tonnage does not exist.\n";
@@ -59,20 +57,12 @@ class CalcController extends Controller
 
         if ($this->month && $this->type && $this->tonnage) {
 
-            if (
-                self::$prices[$this->type] &&
-                self::$prices[$this->type][$this->month] &&
-                self::$prices[$this->type][$this->month][$this->tonnage]
-
-            ) {
-
-                echo "month: $this->month" . "\n";
-                echo "type: $this->type" . "\n";
-                echo "tonnage: $this->tonnage" . "\n";
-                echo 'result: ' .
-                    self::$prices[$this->type][$this->month][$this->tonnage];
-                echo "\n";
-            }
+            echo "month: $this->month" . "\n";
+            echo "type: $this->type" . "\n";
+            echo "tonnage: $this->tonnage" . "\n";
+            echo 'result: ' .
+                $model->calculatePrice(['raw' => $this->type, 'month' => $this->month, 'tonnage' => $this->tonnage])['price'];
+            echo "\n";
         }
         return ExitCode::OK;
     }
