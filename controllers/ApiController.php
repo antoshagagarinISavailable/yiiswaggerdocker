@@ -86,26 +86,21 @@ class ApiController extends Controller
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         $request = \Yii::$app->request;
         if ($request) {
-            $almost_data = $request->getQueryString();
-            $decodedData = urldecode($almost_data);
-
-            $pairs = explode('&', $decodedData);
-
-            $data = array();
-
-            foreach ($pairs as $pair) {
-                $keyValue = explode('=', $pair);
-                $key = $keyValue[0];
-                $value = $keyValue[1];
-                $data[$key] = $value;
-            }
-            if (
-                (isset($data['type']) &&
-                    isset($data['month']) &&
-                    isset($data['tonnage']))
-            ) {
-                return $model->calculatePriceRes($data);
-            }
+            return $model->calculatePriceRes();
+        }
+        throw new \yii\web\HttpException(418, "ПЕЙ ЧАЙ");
+    }
+    public function actionSetMonth()
+    {
+        dd(
+            Yii::$app->getRequest()->getBodyParams(),
+            Yii::$app->request->post()
+        );
+        $model = new CalculatePrice();
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $request = \Yii::$app->request;
+        if ($request) {
+            return $model->calculatePriceRes();
         }
         throw new \yii\web\HttpException(418, "ПЕЙ ЧАЙ");
     }

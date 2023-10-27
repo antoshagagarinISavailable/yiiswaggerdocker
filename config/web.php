@@ -18,6 +18,9 @@ $config = [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'CG4Qmd9x0-MYkc10gfce8VSLVeMcliQn',
             'baseUrl' => '',
+            'parsers' => [
+                'application/json' => 'yii\web\JsonParser',
+            ]
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
@@ -56,6 +59,7 @@ $config = [
                 '/api/v1/tonnages' => 'api/get-tonnages',
                 '/api/v1/types' => 'api/get-types',
                 '/api/v1/calculate' => 'api/get-calculate',
+                '/api/v1/set-month' => 'api/set-month',
             ],
         ],
     ],

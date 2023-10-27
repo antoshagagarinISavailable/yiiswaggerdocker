@@ -1,29 +1,29 @@
-openapi: "3.0.3"
+openapi: 3.0.3
 info:
-  title: API Калькулятор расчёта стоимости доставки
+  title: АРІ Калькулятор расчёта стоимости доставки
   version: 1.0.0
-  description: |
-    *Калькулятор расчёта стоимости доставки - сервис расчёта стоимости доставки
-     ### Возможности сервиса
-    - расчёт стоимости доставки
-    - реестр месяцев доставки
-    - реестр тоннажа доставки
-    - реестр типов сырья доставки
-    - реестр стоимости доставки
+  description: >
+    *Калькулятор расчёта стоимости доставки* - сервис расчёта стоимости доставки
 
-    Разработчик [tony](https://github.com/antoshagagarinISavailable)
+    ### Возможности сервиса
+      - расчёт стоимости доставки
+      - реестр месяцев доставки
+      - реестр тоннажа доставки
+      - реестр типов сырья доствки
+      - реестр стоимости доставки
 
+    Разработчик [(Tony}}({https://github.com/antoshagagarinISavailable})
 tags:
   - name: calculate
-    desctiption: Расчёт стоимостей
+    description: Расчёт стоимостей
   - name: months
-    desctiption: Расчёт стоимостей
+    description: Регистр месяцев
   - name: tonnages
-    desctiption: Регистр тоннажей
+    description: Регистр тоннажей
   - name: types
-    desctiption: Регистр типов сырья
+    description: Регистр типов сырья
   - name: prices
-    desctiption: Регистр стоимости доставки
+    description: Регистр типов сырья
 paths:
   /api/v1/months:
     get:
@@ -35,7 +35,6 @@ paths:
           $ref: "#/components/responses/MonthSuccessfulResponse"
         "401":
           description: Не авторизован
-
     post:
       tags:
         - months
@@ -47,7 +46,6 @@ paths:
           description: Успешное добавление
         "401":
           description: Не авторизован
-
     delete:
       tags:
         - months
@@ -70,7 +68,6 @@ paths:
           $ref: "#/components/responses/TonnagesSuccessfulResponse"
         "401":
           description: Не авторизован
-
     post:
       tags:
         - tonnages
@@ -82,7 +79,6 @@ paths:
           description: Успешное добавление
         "401":
           description: Не авторизован
-
     delete:
       tags:
         - tonnages
@@ -105,7 +101,6 @@ paths:
           $ref: "#/components/responses/TypesSuccessfulResponse"
         "401":
           description: Не авторизован
-
     post:
       tags:
         - types
@@ -115,6 +110,17 @@ paths:
       responses:
         "201":
           description: Успешное добавление
+        "401":
+          description: Не авторизован
+    delete:
+      tags:
+        - types
+      summary: Удалить тип сырья по значению
+      parameters:
+        - $ref: "#/components/parameters/RawTypeParameter"
+      responses:
+        "204":
+          description: Успешное удаление
         "401":
           description: Не авторизован
 
@@ -128,7 +134,7 @@ paths:
         - $ref: "#/components/parameters/RawTypeParameter"
         - $ref: "#/components/parameters/TonnageParameter"
       responses:
-        "201":
+        "200":
           $ref: "#/components/responses/SuccessfulCalculationResponse"
         "401":
           description: Не авторизован
@@ -145,7 +151,6 @@ paths:
           description: Успешное добавление
         "401":
           description: Не авторизован
-
     put:
       tags:
         - prices
@@ -158,121 +163,121 @@ paths:
         "401":
           description: Не авторизован
 
-    components:
-      requestBodies:
-        MonthData:
-          description: Данные месяца для добавления
-          required: true
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  month:
-                    type: string
-                    example: "Март"
-        TonnageRequestBody:
-          description: Данные тоннажа для добавления
-          required: true
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  tonnage:
-                    type: integer
-                    example: 100
-        RawTypeRequestBody:
-          description: Данные типа сырья для добавления
-          required: true
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  raw_type:
-                    type: string
-                    example: "Шрот"
-        PriceRequestBody:
-          description: Данные по стоимости
-          required: true
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  raw_type:
-                    type: string
-                    example: "Соя"
-                  month:
-                    type: string
-                    example: "Январь"
-                  tonnage:
-                    type: integer
-                    example: "100"
-                  value:
-                    type: integer
-                    example: "176"
+components:
+  requestBodies:
+    MonthData:
+      description: Данные месяца для добавления
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              month:
+                type: string
+                example: "Mapт"
+    TonnageRequestBody:
+      description: Данные тоннажа для добавления
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              month:
+                type: integer
+                example: "100"
+    RawTypeRequestBody:
+      description: Данные типа сырья для добавления
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              month:
+                type: string
+                example: "Шрот"
+    PriceRequestBody:
+      description: Данные по стоимости
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              raw_type:
+                type: string
+                example: "Сoя"
+              month:
+                type: string
+                example: "Январь"
+              tonnage:
+                type: integer
+                example: 100
+              value:
+                type: integer
+                example: 176
 
-    responses:
-      MonthSuccessfulResponse:
-        description: Успешный ответ
-        content:
-          application/json:
-            example:
-              - "Январь"
-              - "Февраль"
-              - "Март"
-      TonnagesSuccessfulResponse:
-        description: Успешный ответ
-        content:
-          application/json:
-            example:
-              - 25
-              - 50
-              - 75
-              - 100
-      TypesSuccessfulResponse:
-        description: Успешный ответ
-        content:
-          application/json:
-            example:
-              - "Жмых"
-              - "Соя"
-              - "Шрот"
-      SuccessfulCalculationResponse:
-        description: Успешный ответ
-        content:
-          application/json:
-            example:
-              price: 100
-              price_list:
-                Жмых:
-                  Январь:
-                    "25": 100
-                    "50": 145
-                    "75": 162
-                    "100": 176
+  responses:
+    MonthSuccessfulResponse:
+      description: Успешный ответ
+      content:
+        application/json:
+          example:
+            - "Январь"
+            - "Февраль"
+            - "Март"
+    TonnagesSuccessfulResponse:
+      description: Успешный ответ
+      content:
+        application/json:
+          example:
+            - 25
+            - 50
+            - 75
+            - 100
+    TypesSuccessfulResponse:
+      description: Успешный ответ
+      content:
+        application/json:
+          example:
+            - "Жмых"
+            - "Соя"
+            - "Шрот"
+    SuccessfulCalculationResponse:
+      description: Успешный ответ
+      content:
+        application/json:
+          example:
+            price: 100
+            price_list:
+              Жмых:
+                Январь:
+                  25: 100
+                  50: 145
+                  75: 162
+                  100: 176
 
-    parameters:
-      MonthParameter:
-        name: month
-        in: query
-        required: true
-        schema:
-          type: string
-          example: "Январь"
-      TonnageParameter:
-        name: tonnage
-        in: query
-        required: true
-        schema:
-          type: integer
-          example: 50
-      RawTypeParameter:
-        name: type
-        in: query
-        required: true
-        schema:
-          type: string
-          example: "Шрот"
+  parameters:
+    MonthParameter:
+      name: month
+      in: query
+      required: true
+      schema:
+        type: string
+        example: "Январь"
+    TonnageParameter:
+      name: tonnage
+      in: query
+      required: true
+      schema:
+        type: integer
+        example: 50
+    RawTypeParameter:
+      name: type
+      in: query
+      required: true
+      schema:
+        type: string
+        example: "Шрот"

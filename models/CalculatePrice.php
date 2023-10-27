@@ -61,19 +61,17 @@ class CalculatePrice extends Model
     public function calculatePriceRes()
     {
         $request = \Yii::$app->request;
-        $data = json_decode($request->getRawBody(), true);
+        $data = $request->getBodyParams();
+        // return print_r($request);
 
-        if (gettype($data) !== 'array') {
+        if (count($data) === 0) {
             $data = $request->getQueryString();
             $decodedData = urldecode($data);
 
-            // Разбиваем строку на пары ключ-значение
             $pairs = explode('&', $decodedData);
 
-            // Создаем ассоциативный массив для хранения значений
             $values = array();
 
-            // Разбиваем каждую пару на ключ и значение
             foreach ($pairs as $pair) {
                 $keyValue = explode('=', $pair);
                 $key = $keyValue[0];
