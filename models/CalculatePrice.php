@@ -3,11 +3,11 @@
 namespace app\models;
 
 use yii\base\Model;
+use yii\db\ActiveRecord;
 use yii\db\Query;
 
-use function PHPSTORM_META\type;
 
-class CalculatePrice extends Model
+class CalculatePrice extends ActiveRecord
 {
     public $raw;
     public $month;
@@ -46,6 +46,7 @@ class CalculatePrice extends Model
 
     public function calculatePrice($data)
     {
+
         return (new Query())
             ->select(['price'])
             ->from('prices')
@@ -61,10 +62,11 @@ class CalculatePrice extends Model
     public function calculatePriceRes()
     {
         $request = \Yii::$app->request;
-        $data = $request->getBodyParams();
-        // return print_r($request);
-
-        if (count($data) === 0) {
+        $data = [];
+        if (\Yii::$app->request->isConsoleRequest !== true) {
+            $data = $request->getBodyParams();
+        }
+        if (count($data) === 0 && \Yii::$app->request->isConsoleRequest !== true) {
             $data = $request->getQueryString();
             $decodedData = urldecode($data);
 
@@ -104,6 +106,9 @@ class CalculatePrice extends Model
     {
         return [
             [['month_id', 'tonnage_id', 'raw_type_id'], 'required'],
+            ['month_id', 'required', 'message' => 'выбрать месяц обязательно'],
+            ['tonnage_id', 'required', 'message' => 'выбрать тоннаж обязательно'],
+            ['raw_type_id', 'required', 'message' => 'выбрать сырьё обязательно'],
         ];
     }
 }

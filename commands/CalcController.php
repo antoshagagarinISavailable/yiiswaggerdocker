@@ -3,8 +3,10 @@
 namespace app\commands;
 
 use app\models\CalculatePrice;
+use Symfony\Component\VarDumper\VarDumper;
 use yii\console\Controller;
 use yii\console\ExitCode;
+use Yii;
 
 class CalcController extends Controller
 {
@@ -19,6 +21,22 @@ class CalcController extends Controller
 
     public function actionIndex()
     {
+        $data = Yii::$app->request->params;
+        $values = array();
+
+        foreach ($data as $key => $pair) {
+            if (strpos($pair, '=') !== false) {
+                $keyValue = explode('=', $pair);
+                $key = $keyValue[0];
+                $value = $keyValue[1];
+                $values[$key] = $value;
+            }
+        }
+        $data = $values;
+        $this->month = $data['month'] ?? null;
+        $this->tonnage = $data['tonnage'] ?? null;
+        $this->type = $data['type'] ?? null;
+
         $model = new CalculatePrice();
         $types = $model->arrayHelper($model->getAllRaws());
         $months = $model->arrayHelper($model->getAllMonths());
@@ -61,7 +79,7 @@ class CalcController extends Controller
             echo "type: $this->type" . "\n";
             echo "tonnage: $this->tonnage" . "\n";
             echo 'result: ' .
-                $model->calculatePrice(['raw' => $this->type, 'month' => $this->month, 'tonnage' => $this->tonnage])['price'];
+                $model->calculatePrice($data)['price'];
             echo "\n";
         }
         return ExitCode::OK;

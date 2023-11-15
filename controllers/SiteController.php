@@ -8,12 +8,18 @@ use yii\web\Controller;
 use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
+use app\models\RegistrationForm;
 use app\models\ContactForm;
 use app\models\Prices;
+use app\models\Calculation;
+use app\models\User;
 use app\models\Months;
 use app\models\RawTypes;
 use app\models\Tonnages;
 use yii\db\Query;
+
+use yii\helpers\Url;
+
 
 class SiteController extends Controller
 {
@@ -32,6 +38,7 @@ class SiteController extends Controller
                         'allow' => true,
                         'roles' => ['@'],
                     ],
+
                 ],
             ],
             'verbs' => [
@@ -59,6 +66,19 @@ class SiteController extends Controller
         ];
     }
 
+    public function beforeAction($action)
+    {
+        if (parent::beforeAction($action)) {
+            if (Yii::$app->user->can('admin')) {
+                Yii::$app->layout = 'adminLayout';
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
     /**
      * Displays homepage.
      *
@@ -82,7 +102,7 @@ class SiteController extends Controller
 
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
+            return $this->redirect(['site/calc']);
         }
 
         $model->password = '';
@@ -100,7 +120,7 @@ class SiteController extends Controller
     {
         Yii::$app->user->logout();
 
-        return $this->goHome();
+        return $this->redirect(['site/login']);
     }
 
     /**
@@ -139,10 +159,16 @@ class SiteController extends Controller
         $data = '';
         $queue = '';
 
+        if (!Yii::$app->user->isGuest) {
+            Yii::$app->session->setFlash('success', 'Здравствуйте, ' . Yii::$app->user->identity->username . ', вы авторизовались в системе расчета стоимости доставки. Теперь все ваши расчеты будут сохранены для последующего просмотра в журнале расчетов. <a href="' . Url::to(['calculation/history']) . '">Журнал расчетов</a>');
+        }
+
         if ($model->load(\Yii::$app->request->post()) && $model->validate()) {
 
             $data = \Yii::$app->request->post();
             $calc_res = $model->getCalcRes();
+            $all_months = $model->allMonths();
+            $all_tonnages = $model->allTonnages();
 
             foreach ($data['Prices'] as $key => $value) {
                 $queue .= $key . ' => ' . $value . "\n";
@@ -150,8 +176,21 @@ class SiteController extends Controller
 
             file_put_contents(Yii::getAlias('@runtime/queue.job'), $queue);
             if (\Yii::$app->request->isPjax) {
-
                 $dataForTable = $model->dataForTable();
+                if (!Yii::$app->user->isGuest) {
+                    // dump($calc_res);
+                    $calculation = new Calculation();
+                    $calculation->table_data = json_encode($dataForTable);
+                    $calculation->user = User::findOne(Yii::$app->user->id)->username;
+                    $calculation->user_id = Yii::$app->user->id;
+                    $calculation->month = $calc_res['month'];
+                    $calculation->type = $calc_res['raw'];
+                    $calculation->tonnage = $calc_res['tonnage'];
+                    $calculation->result = $calc_res['price'];
+                    $calculation->all_months = json_encode($all_months);
+                    $calculation->all_tonnages = json_encode($all_tonnages);
+                    $calculation->save();
+                }
 
                 return $this->render('Calc', compact('model', 'calc_res', 'dataForTable'));
             } else {
@@ -161,6 +200,40 @@ class SiteController extends Controller
 
         return $this->render('Calc', compact('model'));
     }
+
+    // public function actionRegister()
+    // {
+    //     $model = new User();
+
+    //     if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+    //         $model->password = Yii::$app->security->generatePasswordHash($model->password);
+    //         if ($model->save()) {
+    //             Yii::$app->session->setFlash('success', 'Вы успешно зарегистрировались!');
+    //             return $this->redirect(['site/login']);
+    //             $auth = Yii::$app->authManager;
+    //             $userRole = $auth->getRole('user');
+    //             $auth->assign($userRole, $model->getId());
+    //         }
+    //     }
+
+    //     return $this->render('register', [
+    //         'model' => $model,
+    //     ]);
+    // }
+    public function actionRegister()
+    {
+        $model = new RegistrationForm();
+
+        if ($model->load(Yii::$app->request->post()) && $model->register()) {
+            // перенаправляем пользователя на страницу успешной регистрации
+            return $this->redirect(['site/login']);
+        }
+
+        return $this->render('register', [
+            'model' => $model,
+        ]);
+    }
+
     public function actionOop()
     {
         return $this->render('oop');

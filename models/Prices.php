@@ -23,6 +23,19 @@ class Prices extends ActiveRecord
             ->one();
     }
 
+    public function calculatePrice($data)
+    {
+        return (new Query())
+            ->select(['price'])
+            ->from('prices')
+            ->where([
+                'month_id' => (new Query())->select('id')->from('months')->where(['name' => $data['month']]),
+                'tonnage_id' => (new Query())->select('id')->from('tonnages')->where(['value' => $data['tonnage']]),
+                'raw_type_id' => (new Query())->select('id')->from('raw_types')->where(['name' => $data['type']]),
+            ])
+            ->one() ?: false;
+    }
+
     public function dataForTable()
     {
         return (new Query())

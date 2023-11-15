@@ -43,10 +43,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
             'options' => ['class' => 'navbar-nav'],
             'items' => [
                 ['label' => 'Home', 'url' => ['/site/index']],
-                // ['label' => 'About', 'url' => ['/site/about']],
                 ['label' => 'Calc', 'url' => ['/site/calc']],
-                // ['label' => 'OOP', 'url' => ['/site/oop']],
-                // ['label' => 'Contact', 'url' => ['/site/contact']],
             ]
 
         ]);
@@ -54,35 +51,29 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
             'options' => ['class' => 'navbar-nav ms-auto'],
 
             'items' => [
-                Yii::$app->user->isGuest
-                    ?  ['label' => 'sign up', 'url' => ['/site/register']]
-                    : '',
+                [
+                    'label' => Yii::$app->user->identity->username,
 
-                Yii::$app->user->isGuest
-                    ? ['label' => 'Login', 'url' => ['/site/login']]
-                    : [
-                        'label' => Yii::$app->user->identity->username,
-
-                        'items' => [
-                            ['label' => 'Профиль', 'url' => ['/profile']],
-                            ['label' => 'История расчетов', 'url' => ['calculation/history']],
-                            // ['label' => 'Пользователи', 'url' => ['/users']],
-                            // [
-                            //     'label' => 'Выход',
-                            //     'url' => ['/site/logout'],
-                            //     'linkOptions' => ['data-method' => 'post']
-                            // ],
-                            '<li class="divider"></li>',
-                            '<li>'
-                                . Html::beginForm(['/site/logout'], 'post')
-                                . Html::submitButton(
-                                    'Выход (' . Yii::$app->user->identity->username . ')',
-                                    ['class' => 'btn btn-link logout']
-                                )
-                                . Html::endForm()
-                                . '</li>',
-                        ],
+                    'items' => [
+                        ['label' => 'Профиль', 'url' => ['/profile']],
+                        ['label' => 'История расчетов', 'url' => ['calculation/history']],
+                        ['label' => 'Пользователи', 'url' => ['/users']],
+                        // [
+                        //     'label' => 'Выход',
+                        //     'url' => ['/site/logout'],
+                        //     'linkOptions' => ['data-method' => 'post']
+                        // ],
+                        '<li class="divider"></li>',
+                        '<li>'
+                            . Html::beginForm(['/site/logout'], 'post')
+                            . Html::submitButton(
+                                'Выход (' . Yii::$app->user->identity->username . ')',
+                                ['class' => 'btn btn-link logout']
+                            )
+                            . Html::endForm()
+                            . '</li>',
                     ],
+                ],
                 // : '<li class="nav-item">'
                 // . Html::beginForm(['/site/logout'])
                 // . Html::submitButton(

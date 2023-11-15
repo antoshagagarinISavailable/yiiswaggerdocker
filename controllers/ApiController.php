@@ -60,7 +60,7 @@ class ApiController extends Controller
         return ob_get_clean();
     }
 
-    public function actionGetMonth()
+    public function actionGetMonths()
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         $model = new Months();

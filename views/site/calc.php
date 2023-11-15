@@ -5,20 +5,23 @@ use yii\helpers\Html;
 use yii\widgets\Pjax;
 ?>
 <h1 class="text-center mb-5 h4">расчёт стоимости доставки</h1>
+
+
+
 <?php Pjax::begin() ?>
 <div class="row justify-content-md-center mt-4">
-    <div class="col-md-4 mb-4">
+    <div class="col-md-5 mb-4">
         <?php $form = ActiveForm::begin([
             'options' => ['data' => ['pjax' => true]],
         ]) ?>
         <?= $form->field($model, 'raw_type_id')->dropDownList($model->allRaws(), ['prompt' => 'выбрать сырьё', 'id' => 'typeInput']) ?>
         <?= $form->field($model, 'month_id')->dropDownList($model->allMonths(), ['prompt' => 'выбрать месяц', 'id' => 'monthInput']) ?>
         <?= $form->field($model, 'tonnage_id')->dropDownList($model->allTonnages(), ['prompt' => 'выбрать тоннаж', 'id' => 'tonnageInput']) ?>
-        <?= Html::submitButton('Submit', ['class' => 'btn btn-dark']) ?>
+        <?= Html::submitButton('расчёт', ['class' => 'btn btn-dark']) ?>
         <?php ActiveForm::end() ?>
     </div>
     <?php if (!empty($calc_res)) : ?>
-        <div class="col-md-4 mb-4 border border-dark rounded text-center p-3">
+        <div class="col-md-3 mb-4 border border-dark rounded text-center p-3">
             <h3 class="text-decoration-underline text-muted">Итого</h3>
             <div class="row align-items-center mt-3">
                 <div class="col-md-12 align-items-center">
@@ -76,4 +79,6 @@ use yii\widgets\Pjax;
     <?php endif; ?>
 
 </div>
+
+
 <?php Pjax::end() ?>
