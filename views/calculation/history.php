@@ -4,6 +4,10 @@ use yii\grid\GridView;
 use yii\grid\ActionColumn;
 
 ?>
+<?php
+$this->params['breadcrumbs'][] = ['label' => 'calc', 'url' => ['/site/calc']];
+$this->params['breadcrumbs'][] = 'История расчётов';
+?>
 
 <?php if (\Yii::$app->user->can('admin')) : ?>
 <?=

@@ -7,6 +7,9 @@ install:
 	@$(MAKE) -s composer-install
 	@$(MAKE) -s spa-install
 	@$(MAKE) -s migrate
+	@$(MAKE) -s migrate-mdm
+	@$(MAKE) -s migrate-rbac
+	@$(MAKE) -s run-rbac-command
 
 up: docker-up
 down: docker-down
@@ -45,8 +48,17 @@ app-php-cli-exec:
 migrate:
 	$(MAKE) app-php-cli-exec cmd="php ./yii migrate"
 
+migrate-mdm:
+	$(MAKE) app-php-cli-exec cmd="php ./yii migrate --migrationPath=@mdm/admin/migrations"
+
+migrate-rbac:
+	$(MAKE) app-php-cli-exec cmd="php ./yii migrate --migrationPath=@yii/rbac/migrations"
+
 composer-install:
 	$(MAKE) app-php-cli-exec cmd="composer install"
+
+run-rbac-command:
+	@$(MAKE) app-php-cli-exec cmd="php ./yii rbac/init"
 
 spa-install:
 	@docker build --build-arg USER=$(whoami) --build-arg GROUP=$(whoami) \

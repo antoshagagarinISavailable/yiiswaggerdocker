@@ -1,9 +1,15 @@
 <?php
 
-use yii\grid\GridView;
 use yii\widgets\DetailView;
 
 ?>
+
+<?php
+$this->params['breadcrumbs'][] = ['label' => 'calc', 'url' => ['/site/calc']];
+$this->params['breadcrumbs'][] = ['label' => 'История расчётов', 'url' => ['/calculation/history']];
+$this->params['breadcrumbs'][] = 'Расчёт #' . $model->id;
+?>
+
 <h1 class="mt-1 mb-4 text-center">расчёт</h1>
 <?php if (\Yii::$app->user->can('admin')) : ?>
     <?=

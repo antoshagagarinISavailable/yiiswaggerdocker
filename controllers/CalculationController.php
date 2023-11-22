@@ -43,12 +43,6 @@ class CalculationController extends Controller
                     ],
                 ],
             ],
-            // 'verbs' => [
-            //     'class' => VerbFilter::class,
-            //     'actions' => [
-            //         'logout' => ['post'],
-            //     ],
-            // ],
         ];
     }
 
@@ -66,18 +60,6 @@ class CalculationController extends Controller
                 'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
             ],
         ];
-    }
-
-    public function beforeAction($action)
-    {
-        if (parent::beforeAction($action)) {
-            if (Yii::$app->user->can('admin')) {
-                Yii::$app->layout = 'adminLayout';
-            }
-            return true;
-        } else {
-            return false;
-        }
     }
 
     /**

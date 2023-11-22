@@ -6,6 +6,7 @@
 use app\assets\AppAsset;
 use app\widgets\Alert;
 use yii\bootstrap5\Breadcrumbs;
+use yii\bootstrap5\Dropdown;
 use yii\bootstrap5\Html;
 use yii\bootstrap5\Nav;
 use yii\bootstrap5\NavBar;
@@ -37,70 +38,69 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
             'brandLabel' => Yii::$app->name,
             // 'brandUrl' => Yii::$app->homeUrl,
             'brandUrl' => '/site/index',
-            'options' => ['class' => 'navbar-expand-md navbar-dark bg-dark fixed-top']
+            'options' => [
+                'class' => 'navbar-expand-md navbar-dark bg-dark fixed-top',
+                'data-bs-theme' => 'dark'
+            ]
         ]);
         echo Nav::widget([
             'options' => ['class' => 'navbar-nav'],
             'items' => [
                 ['label' => 'Home', 'url' => ['/site/index']],
-                // ['label' => 'About', 'url' => ['/site/about']],
                 ['label' => 'Calc', 'url' => ['/site/calc']],
                 // ['label' => 'OOP', 'url' => ['/site/oop']],
-                // ['label' => 'Contact', 'url' => ['/site/contact']],
             ]
-
         ]);
-        echo Nav::widget([
-            'options' => ['class' => 'navbar-nav ms-auto'],
-
-            'items' => [
-                Yii::$app->user->isGuest
-                    ?  ['label' => 'sign up', 'url' => ['/site/register']]
-                    : '',
-
-                Yii::$app->user->isGuest
-                    ? ['label' => 'Login', 'url' => ['/site/login']]
-                    : [
-                        'label' => Yii::$app->user->identity->username,
-
-                        'items' => [
-                            ['label' => 'Профиль', 'url' => ['/profile']],
-                            ['label' => 'История расчетов', 'url' => ['calculation/history']],
-                            // ['label' => 'Пользователи', 'url' => ['/users']],
-                            // [
-                            //     'label' => 'Выход',
-                            //     'url' => ['/site/logout'],
-                            //     'linkOptions' => ['data-method' => 'post']
-                            // ],
-                            '<li class="divider"></li>',
-                            '<li>'
-                                . Html::beginForm(['/site/logout'], 'post')
-                                . Html::submitButton(
-                                    'Выход (' . Yii::$app->user->identity->username . ')',
-                                    ['class' => 'btn btn-link logout']
-                                )
-                                . Html::endForm()
-                                . '</li>',
-                        ],
-                    ],
-                // : '<li class="nav-item">'
-                // . Html::beginForm(['/site/logout'])
-                // . Html::submitButton(
-                //     'Logout (' . Yii::$app->user->identity->username . ')',
-                //     ['class' => 'nav-link btn btn-link logout']
-                // )
-                // . Html::endForm()
-                // . '</li>',
-            ],
-        ]);
-        NavBar::end();
         ?>
+
+        <?php if (!Yii::$app->user->can('user')) : ?>
+            <div class="navbar-nav ms-auto">
+                <?= Html::a('Войти', ['/site/login'], ['class' => 'btn btn-outline-light mx-3 btn-sm']) ?>
+                <?= Html::a('Регистрация', ['/site/register'], ['class' => 'btn btn-outline-light btn-sm']) ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if (Yii::$app->user->can('user')) : ?>
+            <div class="dropdown navbar-nav ms-auto">
+                <a class="nav-link text-light dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <?= Yii::$app->user->identity->username ?>
+                </a>
+                <?php
+                echo Dropdown::widget([
+                    'options' => ['class' => 'dropdown-menu dropdown-menu-end'],
+
+                    'items' => [
+                        ['label' => 'Профиль', 'url' => '/site/profile'],
+                        ['label' => 'История расчетов', 'url' => ['calculation/history']],
+                        Yii::$app->user->can('admin')
+                            ? ['label' => 'Пользователи', 'url' => ['/user']]
+                            : '',
+                        '<li>
+                        <hr class="dropdown-divider">
+                        </li>',
+                        Html::beginForm(['/site/logout'], 'post')
+                            . Html::submitButton(
+                                'Выход',
+                                ['class' => 'dropdown-item']
+                            )
+                            . Html::endForm(),
+                    ],
+                ]);
+                ?>
+            </div>
+        <?php endif; ?>
+
+        <?php NavBar::end(); ?>
     </header>
 
     <main id="main" class="flex-shrink-0" role="main">
         <div class="container">
             <?php if (!empty($this->params['breadcrumbs'])) : ?>
-                <?= Breadcrumbs::widget(['links' => $this->params['breadcrumbs']]) ?>
+                <?php
+                echo Breadcrumbs::widget([
+                    'links' => $this->params['breadcrumbs'],
+                    'options' => ['style' => "--bs-breadcrumb-divider: '-'"],
+                ]) ?>
             <?php endif ?>
             <?= Alert::widget() ?>
             <?= $content ?>
@@ -110,8 +110,8 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
     <footer id="footer" class="mt-auto py-3 bg-light">
         <div class="container">
             <div class="row text-muted">
-                <div class="col-md-6 text-center text-md-start">&copy; My Company <?= date('Y') ?></div>
-                <div class="col-md-6 text-center text-md-end"><?= Yii::powered() ?></div>
+                <div class="col-md-6 text-center text-md-start">&copy; calc <?= date('Y') ?></div>
+                <div class="col-md-6 text-center text-md-end">@</div>
             </div>
         </div>
     </footer>

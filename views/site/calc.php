@@ -1,18 +1,30 @@
 <?php
 
 use yii\widgets\ActiveForm;
+use yii\bootstrap5\Alert;
 use yii\helpers\Html;
 use yii\widgets\Pjax;
+use yii\helpers\Url;
 ?>
+<?php if (Yii::$app->session->getFlash('successMessage') === 'authSuccess') : ?>
+    <?= Alert::widget([
+        'options' => [
+            'class' => 'alert alert-info alert-dismissible fade show',
+        ],
+
+        'body' => 'Здравствуйте, ' . Yii::$app->user->identity->username . ', вы авторизовались в системе расчета стоимости доставки. Теперь все ваши расчеты будут сохранены для последующего просмотра в журнале расчетов. '
+            . Html::a('Журнал расчетов', ['calculation/history'], ['class' => 'text-danger text-decoration-none'],),
+    ]) ?>
+<?php endif; ?>
+
 <h1 class="text-center mb-5 h4">расчёт стоимости доставки</h1>
-
-
 
 <?php Pjax::begin() ?>
 <div class="row justify-content-md-center mt-4">
     <div class="col-md-5 mb-4">
         <?php $form = ActiveForm::begin([
             'options' => ['data' => ['pjax' => true]],
+            // 'enableAjaxValidation' => true,
         ]) ?>
         <?= $form->field($model, 'raw_type_id')->dropDownList($model->allRaws(), ['prompt' => 'выбрать сырьё', 'id' => 'typeInput']) ?>
         <?= $form->field($model, 'month_id')->dropDownList($model->allMonths(), ['prompt' => 'выбрать месяц', 'id' => 'monthInput']) ?>
@@ -82,3 +94,17 @@ use yii\widgets\Pjax;
 
 
 <?php Pjax::end() ?>
+
+<?php
+$js = <<<JS
+$('.btn-close').on('click', function() {
+    $.ajax({
+        url: '/site/hide-alert',
+        type: 'POST',
+        success: function(data) {
+        }
+    });
+});
+JS;
+$this->registerJs($js);
+?>

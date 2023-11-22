@@ -18,7 +18,7 @@ class User extends ActiveRecord implements IdentityInterface
             [['username', 'email', 'password_hash',], 'required'],
             ['email', 'email'],
             ['email', 'unique'],
-            ['username', 'match', 'pattern' => '/^[a-zA-Zа-яА-Я]+$/', 'message' => 'Имя может содержать только буквы'],
+            ['username', 'match', 'pattern' => '/^[a-zA-Zа-яА-Я]+$/u', 'message' => 'Имя может содержать только буквы'],
             ['password_hash', 'match', 'pattern' => '/^(?=.*\d)(?=.*[a-zA-Z]).{6,}$/', 'message' => 'Пароль должен содержать хотя бы одну цифру и быть не менее 6 символов'],
             // ['password_confirmation', 'compare', 'compareAttribute' => 'password', 'message' => 'Пароли не совпадают'],
         ];

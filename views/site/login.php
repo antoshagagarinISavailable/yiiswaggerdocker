@@ -29,7 +29,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 ],
             ]); ?>
 
-            <?= $form->field($model, 'username')->label('логин')->textInput(['autofocus' => true]) ?>
+            <?= $form->field($model, 'username')->label('email')->textInput(['autofocus' => true]) ?>
 
             <?= $form->field($model, 'password')->label('пароль')->passwordInput() ?>
 

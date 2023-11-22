@@ -9,17 +9,10 @@ use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\RegistrationForm;
-use app\models\ContactForm;
 use app\models\Prices;
 use app\models\Calculation;
-use app\models\User;
-use app\models\Months;
-use app\models\RawTypes;
-use app\models\Tonnages;
-use yii\db\Query;
 
 use yii\helpers\Url;
-
 
 class SiteController extends Controller
 {
@@ -66,19 +59,6 @@ class SiteController extends Controller
         ];
     }
 
-    public function beforeAction($action)
-    {
-        if (parent::beforeAction($action)) {
-            if (Yii::$app->user->can('admin')) {
-                Yii::$app->layout = 'adminLayout';
-            }
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-
     /**
      * Displays homepage.
      *
@@ -118,50 +98,29 @@ class SiteController extends Controller
      */
     public function actionLogout()
     {
-        Yii::$app->user->logout();
+        if (Yii::$app->user->logout()) {
+            $cookies = Yii::$app->response->cookies;
+            $cookies->remove('hide_alert');
+        };
 
         return $this->redirect(['site/login']);
     }
 
-    /**
-     * Displays contact page.
-     *
-     * @return Response|string
-     */
-    public function actionContact()
-    {
-        $model = new ContactForm();
-        if ($model->load(Yii::$app->request->post()) && $model->contact(Yii::$app->params['adminEmail'])) {
-            Yii::$app->session->setFlash('contactFormSubmitted');
-
-            return $this->refresh();
-        }
-        return $this->render('contact', [
-            'model' => $model,
-        ]);
-    }
-
-    /**
-     * Displays about page.
-     *
-     * @return string
-     */
-    public function actionAbout()
-    {
-        return $this->render('about');
-    }
-
     public function actionCalc()
     {
+        $cookies = Yii::$app->request->cookies;
+        if (!$cookies->getValue('hide_alert', false)) {
+            if (!Yii::$app->user->isGuest) {
+                Yii::$app->session->setFlash('successMessage', 'authSuccess');
+            }
+        }
+
+
         $this->view->title = 'calc';
         $model = new Prices();
         $request = \Yii::$app->request;
         $data = '';
         $queue = '';
-
-        if (!Yii::$app->user->isGuest) {
-            Yii::$app->session->setFlash('success', 'Здравствуйте, ' . Yii::$app->user->identity->username . ', вы авторизовались в системе расчета стоимости доставки. Теперь все ваши расчеты будут сохранены для последующего просмотра в журнале расчетов. <a href="' . Url::to(['calculation/history']) . '">Журнал расчетов</a>');
-        }
 
         if ($model->load(\Yii::$app->request->post()) && $model->validate()) {
 
@@ -177,55 +136,29 @@ class SiteController extends Controller
             file_put_contents(Yii::getAlias('@runtime/queue.job'), $queue);
             if (\Yii::$app->request->isPjax) {
                 $dataForTable = $model->dataForTable();
+                $params = array(
+                    'calc_res' => $calc_res,
+                    'dataForTable' => $dataForTable,
+                    'all_months' => $all_months,
+                    'all_tonnages' => $all_tonnages
+                );
                 if (!Yii::$app->user->isGuest) {
-                    // dump($calc_res);
-                    $calculation = new Calculation();
-                    $calculation->table_data = json_encode($dataForTable);
-                    $calculation->user = User::findOne(Yii::$app->user->id)->username;
-                    $calculation->user_id = Yii::$app->user->id;
-                    $calculation->month = $calc_res['month'];
-                    $calculation->type = $calc_res['raw'];
-                    $calculation->tonnage = $calc_res['tonnage'];
-                    $calculation->result = $calc_res['price'];
-                    $calculation->all_months = json_encode($all_months);
-                    $calculation->all_tonnages = json_encode($all_tonnages);
-                    $calculation->save();
+                    Calculation::addCalculation($params);
                 }
 
-                return $this->render('Calc', compact('model', 'calc_res', 'dataForTable'));
-            } else {
-                return $this->refresh();
+                return $this->render('calc', compact('model', 'calc_res', 'dataForTable'));
             }
+            return $this->refresh();
         }
 
-        return $this->render('Calc', compact('model'));
+        return $this->render('calc', compact('model'));
     }
 
-    // public function actionRegister()
-    // {
-    //     $model = new User();
-
-    //     if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-    //         $model->password = Yii::$app->security->generatePasswordHash($model->password);
-    //         if ($model->save()) {
-    //             Yii::$app->session->setFlash('success', 'Вы успешно зарегистрировались!');
-    //             return $this->redirect(['site/login']);
-    //             $auth = Yii::$app->authManager;
-    //             $userRole = $auth->getRole('user');
-    //             $auth->assign($userRole, $model->getId());
-    //         }
-    //     }
-
-    //     return $this->render('register', [
-    //         'model' => $model,
-    //     ]);
-    // }
     public function actionRegister()
     {
         $model = new RegistrationForm();
 
         if ($model->load(Yii::$app->request->post()) && $model->register()) {
-            // перенаправляем пользователя на страницу успешной регистрации
             return $this->redirect(['site/login']);
         }
 
@@ -237,5 +170,13 @@ class SiteController extends Controller
     public function actionOop()
     {
         return $this->render('oop');
+    }
+    public function actionHideAlert()
+    {
+        Yii::$app->response->cookies->add(new \yii\web\Cookie([
+            'name' => 'hide_alert',
+            'value' => 'true',
+        ]));
+        return 'ок';
     }
 }

@@ -1,14 +1,13 @@
 <?php
 
-use yii\helpers\BaseUrl;
-
 $params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
 
 $config = [
     'id' => 'basic',
     'name' => '@',
-    'language' => 'ru',
+    'language' => 'ru-Ru',
+    // 'layout' => 'newLayout',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
     'aliases' => [
@@ -35,10 +34,14 @@ $config = [
             'class' => 'yii\caching\FileCache',
         ],
         'user' => [
-            // 'identityClass' => 'app\models\User',
+            'identityClass' => 'app\models\User',
             // 'enableAutoLogin' => true,
-            'identityClass' => 'mdm\admin\models\User',
+            // 'identityClass' => 'mdm\admin\models\User',
             'loginUrl' => ['site/login'],
+            // 'on beforeLogout' => function ($event) {
+            //     $cookies = Yii::$app->response->cookies;
+            //     $cookies->remove('hide_alert');
+            // },
         ],
         'errorHandler' => [],
         'mailer' => [
@@ -64,14 +67,7 @@ $config = [
                 '/api/v1/json-schema' => 'api/get-spec',
                 '/api/v1/<action:(months|tonnages|types|calculate)>' => 'api/get-<action>',
                 '<action:(calc|index|login|logout|register)>' => 'site/<action>',
-                // '/api/v1/months' => 'api/get-month',
-                // '/api/v1/tonnages' => 'api/get-tonnages',
-                // '/api/v1/types' => 'api/get-types',
-                // '/api/v1/calculate' => 'api/get-calculate',
                 '/api/v1/set-month' => 'api/set-month',
-                'history' => 'site/history',
-                'users' => 'site/users',
-                'profile' => 'site/profile',
             ],
         ],
     ],
@@ -84,7 +80,7 @@ $config = [
     ],
     'as access' => [
         'class' => 'mdm\admin\components\AccessControl',
-        'allowActions' => ['site/*', 'calculation/*'],
+        'allowActions' => [],
     ],
 
 ];

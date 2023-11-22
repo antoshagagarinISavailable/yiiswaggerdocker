@@ -6,6 +6,7 @@
 use app\assets\AppAsset;
 use app\widgets\Alert;
 use yii\bootstrap5\Breadcrumbs;
+use yii\bootstrap5\Dropdown;
 use yii\bootstrap5\Html;
 use yii\bootstrap5\Nav;
 use yii\bootstrap5\NavBar;
@@ -37,7 +38,10 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
             'brandLabel' => Yii::$app->name,
             // 'brandUrl' => Yii::$app->homeUrl,
             'brandUrl' => '/site/index',
-            'options' => ['class' => 'navbar-expand-md navbar-dark bg-dark fixed-top']
+            'options' => [
+                'class' => 'navbar-expand-md navbar-dark bg-dark fixed-top',
+                'data-bs-theme' => 'dark'
+            ]
         ]);
         echo Nav::widget([
             'options' => ['class' => 'navbar-nav'],
@@ -45,47 +49,38 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
                 ['label' => 'Home', 'url' => ['/site/index']],
                 ['label' => 'Calc', 'url' => ['/site/calc']],
             ]
-
         ]);
-        echo Nav::widget([
-            'options' => ['class' => 'navbar-nav ms-auto'],
-
-            'items' => [
-                [
-                    'label' => Yii::$app->user->identity->username,
-
-                    'items' => [
-                        ['label' => 'Профиль', 'url' => ['/profile']],
-                        ['label' => 'История расчетов', 'url' => ['calculation/history']],
-                        ['label' => 'Пользователи', 'url' => ['/users']],
-                        // [
-                        //     'label' => 'Выход',
-                        //     'url' => ['/site/logout'],
-                        //     'linkOptions' => ['data-method' => 'post']
-                        // ],
-                        '<li class="divider"></li>',
-                        '<li>'
-                            . Html::beginForm(['/site/logout'], 'post')
-                            . Html::submitButton(
-                                'Выход (' . Yii::$app->user->identity->username . ')',
-                                ['class' => 'btn btn-link logout']
-                            )
-                            . Html::endForm()
-                            . '</li>',
-                    ],
-                ],
-                // : '<li class="nav-item">'
-                // . Html::beginForm(['/site/logout'])
-                // . Html::submitButton(
-                //     'Logout (' . Yii::$app->user->identity->username . ')',
-                //     ['class' => 'nav-link btn btn-link logout']
-                // )
-                // . Html::endForm()
-                // . '</li>',
-            ],
-        ]);
-        NavBar::end();
         ?>
+
+        <div class="dropdown navbar-nav ms-auto">
+            <a class="nav-link text-light dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <?= Yii::$app->user->identity->username ?>
+            </a>
+            <?php
+            echo Dropdown::widget([
+                'options' => ['class' => 'dropdown-menu dropdown-menu-end'],
+
+                'items' => [
+                    ['label' => 'Профиль', 'url' => '/site/profile'],
+                    ['label' => 'История расчетов', 'url' => ['calculation/history']],
+                    ['label' => 'Пользователи', 'url' => ['/user']],
+                    '<li>
+                        <hr class="dropdown-divider">
+                        </li>',
+                    Html::beginForm(['/site/logout'], 'post')
+                        . Html::submitButton(
+                            'Выход',
+                            ['class' => 'dropdown-item']
+                        )
+                        . Html::endForm(),
+                ],
+            ]);
+            ?>
+
+        </div>
+
+        <?php NavBar::end(); ?>
+
     </header>
 
     <main id="main" class="flex-shrink-0" role="main">
@@ -102,7 +97,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
         <div class="container">
             <div class="row text-muted">
                 <div class="col-md-6 text-center text-md-start">&copy; My Company <?= date('Y') ?></div>
-                <div class="col-md-6 text-center text-md-end"><?= Yii::powered() ?></div>
+                <div class="col-md-6 text-center text-md-end"> something </div>
             </div>
         </div>
     </footer>

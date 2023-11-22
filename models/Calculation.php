@@ -11,14 +11,6 @@ class Calculation extends ActiveRecord
         return 'calculations';
     }
 
-    // public function rules()
-    // {
-    //     return [
-    //         [['month'], 'string'],
-    //         [['percent'], 'integer'],
-    //     ];
-    // }
-
     public function attributeLabels(): array
     {
         return [
@@ -42,15 +34,18 @@ class Calculation extends ActiveRecord
     {
         return json_decode($this->table_data, true);
     }
-
-    // static function getListForSelect()
-    // {
-    //     $model = self::find()->all();
-
-    //     foreach ($model as $value) {
-    //         $array[$value->id] = $value->name;
-    //     }
-
-    //     return $array;
-    // }
+    public static function addCalculation(array $params)
+    {
+        $calculation = new Calculation();
+        $calculation->table_data = json_encode($params['dataForTable']);
+        $calculation->user = \Yii::$app->user->identity->username;
+        $calculation->user_id = \Yii::$app->user->id;
+        $calculation->month = $params['calc_res']['month'];
+        $calculation->type = $params['calc_res']['raw'];
+        $calculation->tonnage = $params['calc_res']['tonnage'];
+        $calculation->result = $params['calc_res']['price'];
+        $calculation->all_months = json_encode($params['all_months']);
+        $calculation->all_tonnages = json_encode($params['all_tonnages']);
+        $calculation->save();
+    }
 }
