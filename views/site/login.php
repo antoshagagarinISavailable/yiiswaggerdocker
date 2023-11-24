@@ -6,11 +6,22 @@
 /** @var app\models\LoginForm $model */
 
 use yii\bootstrap5\ActiveForm;
+use yii\bootstrap5\Alert;
 use yii\bootstrap5\Html;
 
 $this->title = 'вход';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
+
+<?php if (Yii::$app->session->getFlash('successMessage') === 'profileDeleted') : ?>
+    <?= Alert::widget([
+        'options' => [
+            'class' => 'alert alert-dark alert-dismissible fade show col-lg-6 container h6',
+        ],
+
+        'body' => 'Ваш аккаунт был удалён',
+    ]) ?>
+<?php endif; ?>
 <div class="site-login">
     <h1><?= Html::encode($this->title) ?></h1>
 
@@ -29,7 +40,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 ],
             ]); ?>
 
-            <?= $form->field($model, 'username')->label('email')->textInput(['autofocus' => true]) ?>
+            <?= $form->field($model, 'email')->label('email')->textInput(['autofocus' => true]) ?>
 
             <?= $form->field($model, 'password')->label('пароль')->passwordInput() ?>
 

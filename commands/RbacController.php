@@ -54,6 +54,7 @@ class RbacController extends Controller
         // Создание разрешений
         $userPermissions = [
             '/calculation/*' => 'Доступ к маршрутам расчетов',
+            '/profile/*' => 'Доступ к маршрутам профиля',
         ];
 
         foreach ($userPermissions as $permission => $description) {

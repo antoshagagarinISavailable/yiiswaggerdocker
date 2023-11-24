@@ -5,13 +5,13 @@ use yii\helpers\Html;
 /** @var yii\web\View $this */
 /** @var app\models\User $model */
 
-$this->title = 'Create User';
-$this->params['breadcrumbs'][] = ['label' => 'Users', 'url' => ['index']];
+$this->title = 'Создать нового пользователя';
+$this->params['breadcrumbs'][] = ['label' => 'Пользователи', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="user-create">
+<div class="user-create col-lg-4">
 
-    <h1><?= Html::encode($this->title) ?></h1>
+    <h1>Создать нового пользователя:</h1>
 
     <?= $this->render('_form', [
         'model' => $model,

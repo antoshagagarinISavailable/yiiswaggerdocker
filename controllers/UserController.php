@@ -91,6 +91,7 @@ class UserController extends Controller
                     $auth = \Yii::$app->authManager;
                     $userRole = $auth->getRole('user');
                     $auth->assign($userRole, $model->getId());
+                    \Yii::$app->session->setFlash('successMessage', 'userCreated');
                     return $this->redirect(['view', 'id' => $model->id]);
                 }
             }
@@ -114,14 +115,24 @@ class UserController extends Controller
     {
         $model = $this->findModel($id);
 
-        // dd($model);
-
         if ($this->request->isPost && $model->load($this->request->post())) {
-            // dd($this->request->post()['User']);
+            $role = $this->request->post()['role'];
+            // dd(\Yii::$app->authManager->getRolesByUser($id));
+            if (!\Yii::$app->authManager->getAssignment($role, $id)) {
+                foreach (\Yii::$app->authManager->getRolesByUser($id) as $key => $value) {
+                    if ($role === "guest") continue;
+                    \Yii::$app->authManager->revoke(\Yii::$app->authManager->getRole($key), $id);
+                };
+                \Yii::$app->authManager->assign(\Yii::$app->authManager->getRole($role), $id);
+            };
+            // if (!\Yii::$app->authManager->getAssignment('admin', $id) && $role === 'user') {
+            //     \Yii::$app->authManager->revoke(\Yii::$app->authManager->getRole($role), $id);
+            // };
             $post = $this->request->post()['User'];
             $model->username = $post['username'];
             $model->email = $post['email'];
             if ($model->save()) {
+                \Yii::$app->session->setFlash('successMessage', 'userUpdated');
                 return $this->redirect(['view', 'id' => $model->id]);
             }
         }
@@ -140,9 +151,10 @@ class UserController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
-
-        return $this->redirect(['index']);
+        if ($this->findModel($id)->delete()) {
+            \Yii::$app->session->setFlash('successMessage', 'userDeleted');
+            return $this->redirect(['index']);
+        }
     }
 
     /**

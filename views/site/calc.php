@@ -9,11 +9,11 @@ use yii\helpers\Url;
 <?php if (Yii::$app->session->getFlash('successMessage') === 'authSuccess') : ?>
     <?= Alert::widget([
         'options' => [
-            'class' => 'alert alert-info alert-dismissible fade show',
+            'class' => 'alert alert-dark alert-dismissible fade show col-lg-6 container h6',
         ],
 
-        'body' => 'Здравствуйте, ' . Yii::$app->user->identity->username . ', вы авторизовались в системе расчета стоимости доставки. Теперь все ваши расчеты будут сохранены для последующего просмотра в журнале расчетов. '
-            . Html::a('Журнал расчетов', ['calculation/history'], ['class' => 'text-danger text-decoration-none'],),
+        'body' => 'Здравствуйте, ' . Yii::$app->user->identity->username . ', вы авторизовались в системе расчета стоимости доставки. Теперь все ваши расчеты будут сохранены для последующего просмотра в '
+            . Html::a('журнале расчетов', ['calculation/history'], ['class' => 'my-underline text-danger'],),
     ]) ?>
 <?php endif; ?>
 

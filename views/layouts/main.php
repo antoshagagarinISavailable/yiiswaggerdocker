@@ -70,7 +70,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
                     'options' => ['class' => 'dropdown-menu dropdown-menu-end'],
 
                     'items' => [
-                        ['label' => 'Профиль', 'url' => '/site/profile'],
+                        ['label' => 'Профиль', 'url' => '/profile'],
                         ['label' => 'История расчетов', 'url' => ['calculation/history']],
                         Yii::$app->user->can('admin')
                             ? ['label' => 'Пользователи', 'url' => ['/user']]

@@ -3,6 +3,8 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
+use yii\debug\models\router\RouterRules;
+use yii\helpers\ArrayHelper;
 use yii\web\IdentityInterface;
 
 class User extends ActiveRecord implements IdentityInterface
@@ -18,7 +20,7 @@ class User extends ActiveRecord implements IdentityInterface
             [['username', 'email', 'password_hash',], 'required'],
             ['email', 'email'],
             ['email', 'unique'],
-            ['username', 'match', 'pattern' => '/^[a-zA-Zа-яА-Я]+$/u', 'message' => 'Имя может содержать только буквы'],
+            ['username', 'match', 'pattern' => '/^[a-zA-Zа-яА-ЯёЁ]+$/u', 'message' => 'Имя может содержать только буквы'],
             ['password_hash', 'match', 'pattern' => '/^(?=.*\d)(?=.*[a-zA-Z]).{6,}$/', 'message' => 'Пароль должен содержать хотя бы одну цифру и быть не менее 6 символов'],
             // ['password_confirmation', 'compare', 'compareAttribute' => 'password', 'message' => 'Пароли не совпадают'],
         ];
@@ -58,6 +60,28 @@ class User extends ActiveRecord implements IdentityInterface
     public function getId()
     {
         return $this->id;
+    }
+
+    public function getAllRoles()
+    {
+        $arr = \Yii::$app->authManager->getRoles();
+        $roles = [];
+        $i = 0;
+        foreach ($arr as $key => $value) {
+            $roles[$i] = $value->name;
+            $i++;
+        }
+        return $roles;
+    }
+
+    public function IsChecked($value)
+    {
+        if (\Yii::$app->authManager->getAssignment('admin', $this->id) && $value === 'admin') {
+            return 'checked';
+        };
+        if (!\Yii::$app->authManager->getAssignment('admin', $this->id) && $value === 'user') {
+            return 'checked';
+        };
     }
 
     public function getAuthKey()
