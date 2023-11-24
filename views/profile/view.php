@@ -34,14 +34,16 @@ $this->title = $model->id;
     <h1><?= \Yii::$app->user->identity->username ?></h1>
 
     <p>
-        <?= Html::a('Изменить', ['update', 'id' => $model->id], ['class' => 'btn btn-dark']) ?>
-        <?= Html::a('Удалить аккаунт', ['delete', 'id' => $model->id], [
-            'class' => 'btn btn-dark',
-            'data' => [
-                'confirm' => 'точно?',
-                'method' => 'post',
-            ],
-        ]) ?>
+        <?= Html::a('Изменить', ['update'], ['class' => 'btn btn-dark']) ?>
+        <?php if (!\Yii::$app->user->can('admin')) : ?>
+            <?= Html::a('Удалить аккаунт', ['delete', 'id' => $model->id], [
+                'class' => 'btn btn-dark',
+                'data' => [
+                    'confirm' => 'точно?',
+                    'method' => 'post',
+                ],
+            ]) ?>
+        <?php endif; ?>
     </p>
 
     <?= DetailView::widget([

@@ -47,7 +47,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'created_at',
                 // 'updated_at',
                 [
-                    'class' => ActionColumn::className(),
+                    'class' => ActionColumn::class,
                     'urlCreator' => function ($action, User $model, $key, $index, $column) {
                         return Url::toRoute([$action, 'id' => $model->id]);
                     }
@@ -56,6 +56,16 @@ $this->params['breadcrumbs'][] = $this->title;
         ]); ?>
     </div>
 
+    <p>
+        <?= Html::a('yii2-admin', ['/admin'], ['class' => 'btn btn-dark btn-sm']) ?>
+    </p>
 
 
 </div>
+
+<?php
+$js = <<<JS
+$('[href="/user/delete?id=1"]').remove()
+JS;
+$this->registerJs($js);
+?>

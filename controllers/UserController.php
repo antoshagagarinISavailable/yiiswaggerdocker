@@ -119,6 +119,7 @@ class UserController extends Controller
             $role = $this->request->post()['role'];
             // dd(\Yii::$app->authManager->getRolesByUser($id));
             if (!\Yii::$app->authManager->getAssignment($role, $id)) {
+                if ($id === '1') return $this->redirect(['index']);
                 foreach (\Yii::$app->authManager->getRolesByUser($id) as $key => $value) {
                     if ($role === "guest") continue;
                     \Yii::$app->authManager->revoke(\Yii::$app->authManager->getRole($key), $id);
@@ -151,6 +152,8 @@ class UserController extends Controller
      */
     public function actionDelete($id)
     {
+        // dd($id);
+        if ($id === '1') return $this->redirect(['index']);
         if ($this->findModel($id)->delete()) {
             \Yii::$app->session->setFlash('successMessage', 'userDeleted');
             return $this->redirect(['index']);
