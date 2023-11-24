@@ -6,10 +6,6 @@ use yii\db\ActiveRecord;
 
 class Months extends ActiveRecord
 {
-    public static function tableName()
-    {
-        return 'months';
-    }
 
     public function rules()
     {

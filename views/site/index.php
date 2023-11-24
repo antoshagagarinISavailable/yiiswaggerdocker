@@ -11,7 +11,7 @@ $this->title = 'My Yii Application';
 
         <p class="lead">You have successfully created your Yii-powered application.</p>
 
-        <p><a class="btn btn-lg btn-success" href="https://www.yiiframework.com">Get started with Yii</a></p>
+        <p><a class="btn btn-lg btn-danger" href="https://www.yiiframework.com">Don't get started with Yii</a></p>
     </div>
 
     <div class="body-content">
@@ -51,3 +51,12 @@ $this->title = 'My Yii Application';
 
     </div>
 </div>
+
+<?php
+$js = <<<JS
+$('.navbar-toggler').on('click', function() {
+   console.log('ok');
+});
+JS;
+$this->registerJs($js);
+?>

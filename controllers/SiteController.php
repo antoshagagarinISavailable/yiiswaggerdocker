@@ -8,12 +8,11 @@ use yii\web\Controller;
 use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
-use app\models\ContactForm;
+use app\models\RegistrationForm;
 use app\models\Prices;
-use app\models\Months;
-use app\models\RawTypes;
-use app\models\Tonnages;
-use yii\db\Query;
+use app\models\Calculation;
+
+use yii\helpers\Url;
 
 class SiteController extends Controller
 {
@@ -32,6 +31,7 @@ class SiteController extends Controller
                         'allow' => true,
                         'roles' => ['@'],
                     ],
+
                 ],
             ],
             'verbs' => [
@@ -82,7 +82,7 @@ class SiteController extends Controller
 
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
+            return $this->redirect(['site/calc']);
         }
 
         $model->password = '';
@@ -98,88 +98,85 @@ class SiteController extends Controller
      */
     public function actionLogout()
     {
-        Yii::$app->user->logout();
+        if (Yii::$app->user->logout()) {
+            $cookies = Yii::$app->response->cookies;
+            $cookies->remove('hide_alert');
+        };
 
-        return $this->goHome();
-    }
-
-    /**
-     * Displays contact page.
-     *
-     * @return Response|string
-     */
-    public function actionContact()
-    {
-        $model = new ContactForm();
-        if ($model->load(Yii::$app->request->post()) && $model->contact(Yii::$app->params['adminEmail'])) {
-            Yii::$app->session->setFlash('contactFormSubmitted');
-
-            return $this->refresh();
-        }
-        return $this->render('contact', [
-            'model' => $model,
-        ]);
-    }
-
-    /**
-     * Displays about page.
-     *
-     * @return string
-     */
-    public function actionAbout()
-    {
-        return $this->render('about');
+        return $this->redirect(['site/login']);
     }
 
     public function actionCalc()
     {
+        $cookies = Yii::$app->request->cookies;
+        if (!$cookies->getValue('hide_alert', false)) {
+            if (!Yii::$app->user->isGuest) {
+                Yii::$app->session->setFlash('successMessage', 'authSuccess');
+            }
+        }
+
+
+        $this->view->title = 'calc';
         $model = new Prices();
         $request = \Yii::$app->request;
         $data = '';
         $queue = '';
-        $months = Months::getListForSelect();
-        $raw_types = RawTypes::getListForSelect();
-        $tonnages = Tonnages::getListForSelect();
 
         if ($model->load(\Yii::$app->request->post()) && $model->validate()) {
+
             $data = \Yii::$app->request->post();
+            $calc_res = $model->getCalcRes();
+            $all_months = $model->allMonths();
+            $all_tonnages = $model->allTonnages();
+
             foreach ($data['Prices'] as $key => $value) {
                 $queue .= $key . ' => ' . $value . "\n";
             }
+
             file_put_contents(Yii::getAlias('@runtime/queue.job'), $queue);
             if (\Yii::$app->request->isPjax) {
-                $cacl_query = new Query();
-                $res = $cacl_query->select(['raw_types.name as raw', 'months.name as month', 'price', 'tonnages.value as tonnage'])
-                    ->from('months')
-                    ->innerJoin('prices', 'months.id = prices.month_id')
-                    ->innerJoin('tonnages', 'tonnages.id = prices.tonnage_id')
-                    ->innerJoin('raw_types', 'raw_types.id = prices.raw_type_id')
-                    ->where(['raw_type_id' => $model->raw_type_id])
-                    ->andWhere(['tonnage_id' => $model->tonnage_id])
-                    ->andWhere(['month_id' => $model->month_id])
-                    ->orderBy(['tonnages.value' => SORT_ASC, 'months.id' => SORT_ASC])
-                    ->all();
-                $table_query = new Query();
-                $dataForTable = $table_query->select(['price', 'months.name', 'tonnages.value'])
-                    ->from('months')
-                    ->innerJoin('prices', 'months.id = prices.month_id')
-                    ->innerJoin('tonnages', 'tonnages.id = prices.tonnage_id')
-                    ->innerJoin('raw_types', 'raw_types.id = prices.raw_type_id')
-                    ->where(['raw_type_id' => $model->raw_type_id])
-                    ->orderBy(['tonnages.value' => SORT_ASC, 'months.id' => SORT_ASC])
-                    ->all();
+                $dataForTable = $model->dataForTable();
+                $params = array(
+                    'calc_res' => $calc_res,
+                    'dataForTable' => $dataForTable,
+                    'all_months' => $all_months,
+                    'all_tonnages' => $all_tonnages
+                );
+                if (!Yii::$app->user->isGuest) {
+                    Calculation::addCalculation($params);
+                }
 
-
-                return $this->render('Calc', compact('model', 'data', 'queue', 'months', 'raw_types', 'tonnages', 'res', 'dataForTable'));
-            } else {
-                return $this->refresh();
+                return $this->render('calc', compact('model', 'calc_res', 'dataForTable'));
             }
+            return $this->refresh();
         }
 
-        return $this->render('Calc', compact('model', 'data', 'queue', 'months', 'raw_types', 'tonnages'));
+        return $this->render('calc', compact('model'));
     }
+
+    public function actionRegister()
+    {
+        $model = new RegistrationForm();
+
+        if ($model->load(Yii::$app->request->post()) && $model->register()) {
+            return $this->redirect(['site/login']);
+        }
+
+        return $this->render('register', [
+            'model' => $model,
+        ]);
+    }
+
     public function actionOop()
     {
         return $this->render('oop');
+    }
+    public function actionHideAlert()
+    {
+        Yii::$app->response->cookies->add(new \yii\web\Cookie([
+            'name' => 'hide_alert',
+            'value' => 'true',
+        ]));
+        return 'ок';
     }
 }

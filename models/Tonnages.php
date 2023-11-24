@@ -6,10 +6,6 @@ use yii\db\ActiveRecord;
 
 class Tonnages extends ActiveRecord
 {
-    public static function tableName()
-    {
-        return 'tonnages';
-    }
 
     public function rules()
     {
@@ -35,5 +31,10 @@ class Tonnages extends ActiveRecord
         }
 
         return $array;
+    }
+
+    public function getPrices()
+    {
+        return $this->hasMany(Prices::class, ['tonnage_id' => 'id']);
     }
 }

@@ -1,0 +1,29 @@
+html {
+    box-sizing: border-box;
+    overflow: -moz-scrollbars-vertical;
+    overflow-y: scroll;
+}
+
+*,
+*:before,
+*:after {
+    box-sizing: inherit;
+}
+
+body {
+    margin: 0;
+    background: #fafafa;
+}
+
+/* fix */
+.wrap > .container {
+    padding-left: 0;
+    padding-right: 0;
+    width: auto;
+    max-width: 1420px;
+}
+
+.swagger-ui pre {
+    background-color: initial;
+    border: 0;
+}

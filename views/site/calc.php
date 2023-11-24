@@ -1,68 +1,87 @@
 <?php
 
 use yii\widgets\ActiveForm;
+use yii\bootstrap5\Alert;
 use yii\helpers\Html;
 use yii\widgets\Pjax;
+use yii\helpers\Url;
 ?>
-<h1 class="text-center mb-3">расчёт стоимости доставки</h1>
+<?php if (Yii::$app->session->getFlash('successMessage') === 'authSuccess') : ?>
+    <?= Alert::widget([
+        'options' => [
+            'class' => 'alert alert-dark alert-dismissible fade show col-lg-6 container h6',
+        ],
+
+        'body' => 'Здравствуйте, ' . Yii::$app->user->identity->username . ', вы авторизовались в системе расчета стоимости доставки. Теперь все ваши расчеты будут сохранены для последующего просмотра в '
+            . Html::a('журнале расчетов', ['calculation/history'], ['class' => 'my-underline text-danger'],),
+    ]) ?>
+<?php endif; ?>
+
+<h1 class="text-center mb-5 h4">расчёт стоимости доставки</h1>
+
 <?php Pjax::begin() ?>
 <div class="row justify-content-md-center mt-4">
-    <div class="col-md-4 mb-4">
+    <div class="col-md-5 mb-4">
         <?php $form = ActiveForm::begin([
             'options' => ['data' => ['pjax' => true]],
+            // 'enableAjaxValidation' => true,
         ]) ?>
-        <?= $form->field($model, 'raw_type_id')->dropDownList($raw_types, ['prompt' => 'выбрать сырьё', 'id' => 'typeInput']) ?>
-        <?= $form->field($model, 'month_id')->dropDownList($months, ['prompt' => 'выбрать месяц', 'id' => 'monthInput']) ?>
-        <?= $form->field($model, 'tonnage_id')->dropDownList($tonnages, ['prompt' => 'выбрать тоннаж', 'id' => 'tonnageInput']) ?>
-        <?= Html::submitButton('Submit', ['class' => 'btn btn-dark']) ?>
+        <?= $form->field($model, 'raw_type_id')->dropDownList($model->allRaws(), ['prompt' => 'выбрать сырьё', 'id' => 'typeInput']) ?>
+        <?= $form->field($model, 'month_id')->dropDownList($model->allMonths(), ['prompt' => 'выбрать месяц', 'id' => 'monthInput']) ?>
+        <?= $form->field($model, 'tonnage_id')->dropDownList($model->allTonnages(), ['prompt' => 'выбрать тоннаж', 'id' => 'tonnageInput']) ?>
+        <?= Html::submitButton('расчёт', ['class' => 'btn btn-dark']) ?>
         <?php ActiveForm::end() ?>
     </div>
-    <?php if (!empty($res)) : ?>
-        <div class="col-md-4 mb-4 border border-dark rounded text-center p-3">
-            <h3>Итого</h3>
+    <?php if (!empty($calc_res)) : ?>
+        <div class="col-md-3 mb-4 border border-dark rounded text-center p-3">
+            <h3 class="text-decoration-underline text-muted">Итого</h3>
             <div class="row align-items-center mt-3">
                 <div class="col-md-12 align-items-center">
-                    <p><span>месяц: </span><span id="month"><?= $res[0]['month'] ?></span></p>
-                    <p><span>сырьё: </span><span id="type"><?= $res[0]['raw'] ?></span></p>
-                    <p><span>тоннаж: </span><span id="tonnage"><?= $res[0]['tonnage'] ?></span></p>
-                    <p><span>цена: </span><span id="price"><?= $res[0]['price'] ?></span></p>
+                    <p><span>месяц: </span><span id="month"><?= $calc_res['month'] ?></span></p>
+                    <p><span>сырьё: </span><span id="type"><?= $calc_res['raw'] ?></span></p>
+                    <p><span>тоннаж: </span><span id="tonnage"><?= $calc_res['tonnage'] ?></span></p>
+                    <p><span>цена: </span><span class="fw-bold text-danger" id="price"><?= $calc_res['price'] ?></span></p>
 
                 </div>
             </div>
         </div>
 
-        <div class="col-md-8 mt-3">
-            <table class="table">
-                <thead>
+        <div class="col-md-8 mt-3 table-responsive">
+            <table class="table text-center">
+                <thead class="table-light">
                     <tr>
-                        <th scope="col">
+                        <th scope="col" class="text-muted small">
+                            т\м
                         </th>
-                        <?php foreach ($months as $key => $month) : ?>
+                        <?php foreach ($model->allMonths() as $key => $month) : ?>
                             <th scope="col"><?= $month ?></th>
                         <?php endforeach; ?>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($tonnages
+                    <?php foreach ($model->allTonnages()
                         as $tonnage_key => $tonnage_value) : ?>
                         <tr>
                             <th scope="row">
                                 <?= $tonnage_value ?>
                             </th>
 
-
                             <?php foreach ($dataForTable as $data_key => $data_value) : ?>
-                                <?php
-                                if (
-                                    $data_value['value'] == $tonnage_value
-                                ) {
-                                    echo '<td>';
-                                    echo $dataForTable[$data_key]['price'];
-                                    echo '</td>';
-                                }
-                                ?>
+                                <?php if ($data_value['value'] == $tonnage_value) : ?>
+                                    <?php
+                                    if (
+                                        $dataForTable[$data_key]['price'] == $calc_res['price'] &&
+                                        $dataForTable[$data_key]['name'] == $calc_res['month']
+                                    ) {
+                                        echo '<td class="fw-bold text-danger">';
+                                    } else {
+                                        echo '<td>';
+                                    }
+                                    ?>
+                                    <?= $dataForTable[$data_key]['price'] ?>
+                                    </td>
+                                <?php endif; ?>
                             <?php endforeach; ?>
-
 
                         </tr>
                     <?php endforeach; ?>
@@ -72,4 +91,20 @@ use yii\widgets\Pjax;
     <?php endif; ?>
 
 </div>
+
+
 <?php Pjax::end() ?>
+
+<?php
+$js = <<<JS
+$('.btn-close').on('click', function() {
+    $.ajax({
+        url: '/site/hide-alert',
+        type: 'POST',
+        success: function(data) {
+        }
+    });
+});
+JS;
+$this->registerJs($js);
+?>
