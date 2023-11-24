@@ -35,5 +35,5 @@ tests/_support/_generated
 #vagrant folder
 /.vagrant
 
-# ENV
-.env
+# # ENV
+# .env
